@@ -1,38 +1,57 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import Container from "react-bootstrap/Container";
 import Nav from "react-bootstrap/Nav";
 import Navbar from "react-bootstrap/Navbar";
 import NavDropdown from "react-bootstrap/NavDropdown";
-import Modal from "react-bootstrap/Modal";
+import Toast from "react-bootstrap/Toast";
 import { Outlet } from "react-router-dom";
-import {
-  RiLoginCircleLine,
-  RiLogoutCircleRLine,
-  RiSettingsLine,
-  RiCalendarLine,
-  RiUser3Line,
-  RiDashboard3Line,
-  RiStethoscopeLine,
-} from "react-icons/ri";
-import LoginForm from "../login/LoginForm";
+import { RiRobot2Fill, RiLogoutCircleRLine, RiLoginCircleLine, RiUser3Line } from "react-icons/ri";
 import "./Header.css";
-import { useSelector, useDispatch } from "react-redux";
-import { logout } from "../../slices/authForm/logout";
+import roleBasedNavItems  from './RoleBasedNavItems';
+
+const publicNavItems = [
+  {
+    title: "QuickCare",
+    icon: <RiRobot2Fill size="2em" />,
+    items: [
+      { href: "/emergency", label: "Emergencies" },
+      { href: "/hospitals", label: "Find Hospitals" },
+      { href: "/doctors", label: "Find Doctors" },
+      { href: "/pharmacies", label: "Find Pharmacies" },
+
+    ],
+  },
+];
 
 function Header() {
-  const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
-  // const username = useSelector((state) => state.auth.username);
-  const profileJSON = localStorage.getItem("profile");
-  const profile = JSON.parse(profileJSON);
-  const dispatch = useDispatch();
-  const [showLogin, setShowLogin] = useState(false);
-
-  const handleCloseLogin = () => setShowLogin(false);
-  const handleShowLogin = () => setShowLogin(true);
+  const [showToast, setShowToast] = useState(false);
+  // Fetch the authentication status and role from local storage
+  const isAuthenticated = !!localStorage.getItem("userRole");
+  const role = localStorage.getItem("userRole"); // Get role from local storage
 
   const handleLogout = () => {
-    dispatch(logout(dispatch));
-    setShowLogin(false);
+    localStorage.removeItem("userRole"); // Clear user role from local storage
+    setShowToast(true);
+  };
+
+  const renderNavItems = (items) => {
+    return items.map((item, index) => (
+      <NavDropdown
+        key={index}
+        title={
+          <>
+            {item.icon} {item.title}
+          </>
+        }
+        id={`nav-dropdown-${item.title.toLowerCase()}`}
+      >
+        {item.items.map((subItem, subIndex) => (
+          <NavDropdown.Item key={subIndex} href={subItem.href}>
+            {subItem.label}
+          </NavDropdown.Item>
+        ))}
+      </NavDropdown>
+    ));
   };
 
   return (
@@ -42,7 +61,7 @@ function Header() {
           <Navbar.Toggle aria-controls="basic-navbar-nav" />
           <Navbar.Collapse id="basic-navbar-nav">
             <Nav className="me-auto d-flex justify-content-center">
-              <Navbar.Brand href="https://hukumabob.github.io/">
+              <Navbar.Brand href="/">
                 <img
                   src="../images/logo.svg"
                   width="30"
@@ -51,81 +70,42 @@ function Header() {
                   alt="Endosoft logo"
                 />
               </Navbar.Brand>
-              <Nav.Link href="dashboard">
-                <RiDashboard3Line size="2em" />
-                Dashboard
-              </Nav.Link>
-              <Nav.Link href="patients">
-                <RiUser3Line size="2em" />
-                Patients
-              </Nav.Link>
-              <NavDropdown
-                title={
-                  <>
-                    <RiCalendarLine size="2em" /> Sheduling
-                  </>
-                }
-                id="basic-nav-dropdown"
-              >
-                <NavDropdown.Item href="today-schedule">Today</NavDropdown.Item>
-                <NavDropdown.Item href="#action/3.2">
-                  This week
-                </NavDropdown.Item>
-                <NavDropdown.Item href="#action/3.3">
-                  This month
-                </NavDropdown.Item>
-                <NavDropdown.Divider />
-                <NavDropdown.Item href="#action/3.4">
-                  Whole time
-                </NavDropdown.Item>
-              </NavDropdown>
-              <Nav.Link href="setup">
-                <RiSettingsLine size="2em" />
-                System setup
-              </Nav.Link>
-              <Nav.Link href="icd">
-                <RiStethoscopeLine size="2em" />
-                ICD-11
-              </Nav.Link>
-            </Nav>
 
-            <Nav>
+              {renderNavItems(publicNavItems)}
+
               {isAuthenticated ? (
                 <>
-                  <Navbar.Text
-                    onClick={handleLogout}
-                    className="d-inline-block align-self-center"
-                  >
-                    Welcome, {profile.role} {profile.first_name}{" "}
-                    {profile.last_name}
-                    <RiLogoutCircleRLine size="2em" className=" pointed-icon" />
-                  </Navbar.Text>
+                  {renderNavItems(roleBasedNavItems[role] || [])}
+                  <Nav.Link onClick={handleLogout}>
+                    <RiLogoutCircleRLine size="2em" /> Logout
+                  </Nav.Link>
                 </>
               ) : (
                 <>
-                  <Navbar.Text
-                    onClick={handleShowLogin}
-                    className="d-inline-block align-self-center pointed-icon"
-                  >
-                    Login
-                    <RiLoginCircleLine size="2em" />
-                  </Navbar.Text>
+                  <Nav.Link href="/login">
+                    <RiLoginCircleLine size="2em" /> Login
+                  </Nav.Link>
+                  <Nav.Link href="/signup">
+                    <RiUser3Line size="2em" /> Sign Up
+                  </Nav.Link>
                 </>
               )}
             </Nav>
           </Navbar.Collapse>
         </Container>
       </Navbar>
-      <Outlet />
-      <Modal show={showLogin} onHide={handleCloseLogin}>
-        <Modal.Header closeButton>
-          <Modal.Title>Login</Modal.Title>
-        </Modal.Header>
 
-        <Modal.Body>
-          <LoginForm onLoginSuccess={handleCloseLogin} />
-        </Modal.Body>
-      </Modal>
+      {/* Toast for Logout Confirmation */}
+      <Toast
+        onClose={() => setShowToast(false)}
+        show={showToast}
+        delay={3000}
+        autohide
+      >
+        <Toast.Body>You have successfully logged out!</Toast.Body>
+      </Toast>
+
+      <Outlet />
     </>
   );
 }

@@ -1,300 +1,146 @@
-import Card from "react-bootstrap/Card";
-import Form from "react-bootstrap/Form";
-import Button from "react-bootstrap/Button";
-import Row from "react-bootstrap/Row";
-import Col from "react-bootstrap/Col";
-import { useReducer, useRef, useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { closeForm } from "../../slices/patientFormSlice";
-import { createPatient } from "../../slices/patientForm/createPatient";
-import { deletePatient } from "../../slices/patientForm/deletePatient";
-import { deletePhotoPatient } from "../../slices/patientForm/deletePhotoPatient";
-import { updatePatient } from "../../slices/patientForm/updatePatient";
-import { fetchPatients } from "../../slices/PatientsSlice";
-import "./PatientForm.css";
-import {
-  initialPatientState,
-  patientReducer,
-} from "../../slices/patientForm/patientReducer";
+import React, { useState } from 'react';
 
-const PatientForm = () => {
-  const [patient, dispatch] = useReducer(patientReducer, initialPatientState);
-  const fileInput = useRef();
-  const dispatchRedux = useDispatch();
-  const patientFormStatus = useSelector((state) => state.patientForm.status);
-  const loadedPatient = useSelector((state) => state.patientForm.patient);
+const PatientInfo = () => {
+    const [maritalStatusOther, setMaritalStatusOther] = useState(false);
+    const [emergencyRelationshipOther, setEmergencyRelationshipOther] = useState(false);
+    const [languagePreferenceOther, setLanguagePreferenceOther] = useState(false);
+    const [medicalHistoryOther, setMedicalHistoryOther] = useState(false);
+    const [medicationDetails, setMedicationDetails] = useState(false);
 
-  useEffect(() => {
-    if (loadedPatient) {
-      // Заполняем форму данными пациента, если они загружены
-      dispatch({ type: "load", payload: loadedPatient });
-    }
-  }, [loadedPatient]);
+    const handleMaritalStatusChange = (e) => {
+        setMaritalStatusOther(e.target.value === 'other');
+    };
 
-  const [selectedImage, setSelectedImage] = useState(null);
+    const handleEmergencyContactChange = (e) => {
+        setEmergencyRelationshipOther(e.target.value === 'other');
+    };
 
-  const handleFileChange = (e) => {
-    dispatch({
-      type: "field",
-      fieldName: e.target.name,
-      payload: e.target.files[0],
-    });
-    setSelectedImage(URL.createObjectURL(e.target.files[0]));
-  };
+    const handleLanguagePreferenceChange = (e) => {
+        setLanguagePreferenceOther(e.target.value === 'other');
+    };
 
-  const handleChange = (e) => {
-    dispatch({
-      type: "field",
-      fieldName: e.target.name,
-      payload: e.target.value,
-    });
-  };
+    const handleMedicalHistoryChange = (e) => {
+        setMedicalHistoryOther(e.target.value === 'other');
+    };
 
-  const currentPage = useSelector((state) => state.patients.currentPage);
+    const handleMedicationChange = (e) => {
+        setMedicationDetails(e.target.value === 'other');
+    };
 
-  const createPatientData = () => {
-    dispatchRedux(createPatient(patient, dispatch))
-      .then(() => {
-        dispatchRedux(closeForm()); // Закрываем модальное окно после успешного выполнения
-        dispatchRedux(fetchPatients(1, dispatch)); // Запрашиваем данные о пациентах снова
-        dispatch({ type: "reset" }); // Сбрасываем состояние формы
-      })
-      .catch((error) => {
-        console.error("Ошибка при создании пациента:", error);
-      });
-  };
-  const updatePatientData = () => {
-    dispatchRedux(
-      updatePatient({ ...patient, fileInput, fieldName: "photo" }, dispatch)
-    )
-      .then(() => {
-        dispatchRedux(closeForm()); // Закрываем модальное окно после успешного выполнения
-        dispatchRedux(fetchPatients(currentPage, dispatch)); // Запрашиваем данные о пациентах снова
-        dispatch({ type: "reset" }); // Сбрасываем состояние формы
-      })
-      .catch(handleError);
-  };
+    return (
+        <div className="main-content">
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (patientFormStatus === "idle") {
-      if (patient.id) {
-        if (patient.photo && fileInput.current.files[0]) {
-          dispatchRedux(deletePhotoPatient(patient.id))
-            .then(() => {
-              // После успешного удаления фото обновляем пациента
-              updatePatientData();
-            })
-            .catch(handleError);
-        } else {
-          updatePatientData();
-        }
-      } else {
-        createPatientData();
-      }
-    }
-  };
+            <form id="patientForm" method="POST">
+                <div className="form-group">
+                    <label htmlFor="name">Name:</label>
+                    <input type="text" id="name" name="name" required />
+                </div>
 
-  const deletePatientData = () => {
-    dispatchRedux(deletePhotoPatient(patient.id, dispatch))
-      .then(() => {
-        dispatchRedux(deletePatient(patient.id, dispatch))
-          .then(() => {
-            dispatchRedux(closeForm()); // Закрываем модальное окно после успешного выполнения
-            dispatchRedux(fetchPatients(currentPage, dispatch)); // Запрашиваем данные о пациентах снова
-            dispatch({ type: "reset" }); // Сбрасываем состояние формы
-          })
-          .catch((error) => {
-            console.error("Ошибка при удалении пациента:", error);
-          });
-      })
-      .catch((error) => {
-        console.error("Ошибка при удалении фотографии пациента:", error);
-      });
-  };
+                <div className="form-group">
+                    <label htmlFor="dob">Date of Birth:</label>
+                    <input type="date" id="dob" name="dob" />
+                </div>
 
-  const handleDeletePatient = (e) => {
-    e.preventDefault();
-    if (patientFormStatus === "idle") {
-      if (patient.id) {
-        deletePatientData();
-      }
-    }
-  };
+                <div className="form-group">
+                    <label htmlFor="gender">Gender:</label>
+                    <select id="gender" name="gender">
+                        <option value="">Select Gender</option>
+                        <option value="male">Male</option>
+                        <option value="female">Female</option>
+                        <option value="other">Other</option>
+                        <option value="non-binary">Non-binary</option>
+                        <option value="prefer not to say">Prefer not to say</option>
+                    </select>
+                </div>
 
-  useEffect(() => {
-    dispatchRedux(fetchPatients(currentPage, dispatch));
-  }, [currentPage, dispatchRedux]);
+                <div className="form-group">
+                    <label htmlFor="district">District:</label>
+                    <select id="district" name="district">
+                        <option value="">Select District</option>
+                        <option value="yumbe">Yumbe</option>
+                        <option value="zombo">Zombo</option>
+                    </select>
+                </div>
 
-  const handleError = (error) => {
-    console.error("Ошибка при обновлении/создании пациента:", error);
-  };
+                <div className="form-group">
+                    <label htmlFor="email">Email:</label>
+                    <input type="email" id="email" name="email" required />
+                </div>
 
-  return (
-    <Card bg="dark" data-bs-theme="dark">
-      <Card.Body>
-        <Form onSubmit={handleSubmit}>
-          <Form.Group as={Row} className="mb-3">
-            <Form.Label column sm={2}>
-              Photo
-            </Form.Label>
-            <Col sm={9}>
-              <Form.Control
-                type="file"
-                name="photo"
-                ref={fileInput}
-                onChange={handleFileChange}
-              />
-            </Col>
-            <Col sm={1} className="me-auto d-flex justify-content-center">
-              {selectedImage ? (
-                <Card.Img
-                  src={selectedImage}
-                  className="align-self-center my-thumbnail"
-                />
-              ) : loadedPatient?.photo ? (
-                <Card.Img
-                  src={loadedPatient.photo}
-                  className="align-self-center my-thumbnail"
-                />
-              ) : (
-                <></>
-              )}
-            </Col>
-          </Form.Group>
-          <Form.Group as={Row} className="mb-3">
-            <Form.Label column sm={3}>
-              First name
-            </Form.Label>
-            <Col sm={9}>
-              <Form.Control
-                type="text"
-                name="first_name"
-                value={patient.first_name}
-                onChange={handleChange}
-              />
-            </Col>
-          </Form.Group>
+                <div className="form-group">
+                    <label htmlFor="phone_number">Phone Number:</label>
+                    <select id="country_code" name="country_code" style={{ width: '30%', marginRight: '10px' }}>
+                        <option value="">Country Code</option>
+                        <option value="+93">+93 Afghanistan</option>
+                        <option value="+263">+263 Zimbabwe</option>
+                    </select>
+                    <input type="tel" id="phone_number" name="phone_number" placeholder="e.g., +256 772 123 456" />
+                </div>
 
-          <Form.Group as={Row} className="mb-3">
-            <Form.Label column sm={3}>
-              Mid name
-            </Form.Label>
-            <Col sm={9}>
-              <Form.Control
-                type="text"
-                name="middle_name"
-                value={patient.middle_name}
-                onChange={handleChange}
-              />
-            </Col>
-          </Form.Group>
+                <div className="form-group">
+                    <label htmlFor="marital_status">Marital Status:</label>
+                    <select id="marital_status" name="marital_status" onChange={handleMaritalStatusChange}>
+                        <option value="">Select Marital Status</option>
+                        <option value="single">Single</option>
+                        <option value="other">Other</option>
+                    </select>
 
-          <Form.Group as={Row} className="mb-3">
-            <Form.Label column sm={3}>
-              Last name
-            </Form.Label>
-            <Col sm={9}>
-              <Form.Control
-                type="text"
-                name="last_name"
-                value={patient.last_name}
-                onChange={handleChange}
-              />
-            </Col>
-          </Form.Group>
+                    {maritalStatusOther && (
+                        <div className="form-group">
+                            <label htmlFor="marital_status_other_input">Please specify:</label>
+                            <textarea id="marital_status_other_input" name="marital_status_other_input"></textarea>
+                        </div>
+                    )}
+                </div>
 
-          <Form.Group as={Row} className="mb-3">
-            <Form.Label column sm={2}>
-              DoB
-            </Form.Label>
-            <Col sm={4}>
-              <Form.Control
-                type="date"
-                name="date_of_birth"
-                value={patient.date_of_birth}
-                onChange={handleChange}
-              />
-            </Col>
-            <Form.Label column sm={2}>
-              Gender
-            </Form.Label>
-            <Col sm={4}>
-              <Form.Control
-                as="select"
-                name="gender"
-                value={patient.gender}
-                onChange={handleChange}
-              >
-                <option value="M">Male</option>
-                <option value="F">Female</option>
-                <option value="O">Other</option>
-              </Form.Control>
-            </Col>
-          </Form.Group>
+                <div className="form-group">
+                    <label htmlFor="smoking_status">Smoking Status:</label>
+                    <select id="smoking_status" name="smoking_status">
+                        <option value="">Select Smoking Status</option>
+                        <option value="non_smoker">Non-smoker</option>
+                        <option value="occasional_smoker">Occasional Smoker</option>
+                        <option value="regular_smoker">Regular Smoker</option>
+                        <option value="former_smoker">Former Smoker</option>
+                    </select>
+                </div>
 
-          <Form.Group as={Row} className="mb-3">
-            <Form.Label column sm={3}>
-              Address
-            </Form.Label>
-            <Col sm={9}>
-              <Form.Control
-                type="text"
-                name="address"
-                value={patient.address}
-                onChange={handleChange}
-              />
-            </Col>
-          </Form.Group>
+                {/* Continue the same pattern for other fields like alcohol consumption, physical activity, medical history, etc. */}
+                
+                <div className="form-group">
+                    <label htmlFor="emergency_contact">Emergency Contact Name:</label>
+                    <input type="text" id="emergency_contact" name="emergency_contact" required />
+                </div>
 
-          <Form.Group as={Row} className="mb-3">
-            <Form.Label column sm={4}>
-              Phone number
-            </Form.Label>
-            <Col sm={8}>
-              <Form.Control
-                type="tel"
-                name="phone_number"
-                value={patient.phone_number}
-                onChange={handleChange}
-              />
-            </Col>
-          </Form.Group>
+                <div className="form-group">
+                    <label htmlFor="emergency_phone">Emergency Contact Phone:</label>
+                    <input type="tel" id="emergency_phone" name="emergency_phone" required />
+                </div>
 
-          <Form.Group as={Row} className="mb-3">
-            <Form.Label column sm={4}>
-              Email
-            </Form.Label>
-            <Col sm={8}>
-              <Form.Control
-                type="email"
-                name="email"
-                value={patient.email}
-                onChange={handleChange}
-              />
-            </Col>
-          </Form.Group>
-          <Form.Group as={Row} className="mb-3 justify-content-md-center">
-            <Col sm={6}>
-              <Button variant="primary" type="submit" className="my-button">
-                Submit
-              </Button>
-            </Col>
-            <Col sm={6}>
-              <Button
-                variant="danger"
-                type="button"
-                onClick={handleDeletePatient}
-                className="my-button"
-              >
-                Delete
-              </Button>
-            </Col>
-          </Form.Group>
-        </Form>
-      </Card.Body>
-    </Card>
-  );
+                <div className="form-group">
+                    <label htmlFor="emergency_contact_relationship">Relationship with Emergency Contact:</label>
+                    <select id="emergency_contact_relationship" name="emergency_contact_relationship" onChange={handleEmergencyContactChange}>
+                        <option value="">Select Relationship</option>
+                        <option value="parent">Parent</option>
+                        <option value="sibling">Sibling</option>
+                        <option value="spouse">Spouse</option>
+                        <option value="friend">Friend</option>
+                        <option value="colleague">Colleague</option>
+                        <option value="guardian">Guardian</option>
+                        <option value="other">Other</option>
+                    </select>
+
+                    {emergencyRelationshipOther && (
+                        <div className="form-group">
+                            <label htmlFor="other_relationship_input">Please specify:</label>
+                            <textarea id="other_relationship_input" name="other_relationship_input"></textarea>
+                        </div>
+                    )}
+                </div>
+
+                {/* Add all the remaining fields similarly */}
+            </form>
+        </div>
+    );
 };
 
-export default PatientForm;
+export default PatientInfo;

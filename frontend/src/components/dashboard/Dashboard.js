@@ -1,17 +1,19 @@
 import Button from "react-bootstrap/Button";
 import Card from "react-bootstrap/Card";
-import { LoremIpsum } from "react-lorem-ipsum";
+import { NavLink } from 'react-router-dom';
+
+import Dash from './Dash';
 const Dashboard = () => {
   return (
     <Card className="m-1">
-      <Card.Img variant="top" src="../images/cat (3).jfif" />
+      <Card.Img variant="top" src="../images/cover-bg.jpg" />
       <Card.Body>
-        <Card.Title>Patients</Card.Title>
+        <Card.Title> Tip of the Day</Card.Title>
 
-        <LoremIpsum p={1} />
+        <Dash p={1} />
 
-        <Button variant="primary">Go somewhere</Button>
-      </Card.Body>
+        <NavLink to='/book' className="btn btn-secondary">See Your Appointments</NavLink>
+        </Card.Body>
     </Card>
   );
 };
