@@ -1,0 +1,19 @@
+{
+  "files": {
+    "main.css": "/carbon-footprint-tracker/static/css/main.0678f5b8.css",
+    "main.js": "/carbon-footprint-tracker/static/js/main.4d6fc119.js",
+    "static/js/279.f6b74151.chunk.js": "/carbon-footprint-tracker/static/js/279.f6b74151.chunk.js",
+    "static/js/879.c1d7afd8.chunk.js": "/carbon-footprint-tracker/static/js/879.c1d7afd8.chunk.js",
+    "static/js/112.870672ee.chunk.js": "/carbon-footprint-tracker/static/js/112.870672ee.chunk.js",
+    "static/media/dr.mp4": "/carbon-footprint-tracker/static/media/dr.6db438fb518a34592ceb.mp4",
+    "index.html": "/carbon-footprint-tracker/index.html",
+    "main.0678f5b8.css.map": "/carbon-footprint-tracker/static/css/main.0678f5b8.css.map",
+    "main.4d6fc119.js.map": "/carbon-footprint-tracker/static/js/main.4d6fc119.js.map",
+    "879.c1d7afd8.chunk.js.map": "/carbon-footprint-tracker/static/js/879.c1d7afd8.chunk.js.map",
+    "112.870672ee.chunk.js.map": "/carbon-footprint-tracker/static/js/112.870672ee.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.0678f5b8.css",
+    "static/js/main.4d6fc119.js"
+  ]
+}
