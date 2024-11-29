@@ -2,7 +2,7 @@
 
   import "bootstrap/dist/css/bootstrap.min.css";
   import React, { useEffect, lazy, Suspense } from 'react'; 
-  import { BrowserRouter as Router, Routes, Route } from "react-router-dom"; // Import Routes here
+  import { HashRouter as Router, Routes, Route } from "react-router-dom"; // Import Routes here
   import ProtectedRoute from './ProtectedRoute'; // Adjust the path as necessary
   import { ApolloClient, InMemoryCache, ApolloProvider } from "@apollo/client"; // Import Apollo Client dependencies
   import { MedicationProvider } from './components/patients/MedicationContext'; // Import MedicationProvider
@@ -188,10 +188,13 @@ const App = () => {
   return (
     <RoleProvider>
       <ApolloProvider client={client}>
+      
         <MedicationProvider>
+          <ChronicsProvider>
           <Container bg="dark" fluid className="p-0 m-0" data-bs-theme="dark">
             <ToastContainer />
             <Header />
+            <Router>
             <Routes>
 
         <Route path="/" element={<LandingPage />} />
@@ -364,7 +367,9 @@ const App = () => {
         <Route path="/signup" element={<SignUp onLogin={handleLogin} />} />
         <Route path="/chronics" element={<ChronicsProvider><ChronicsContent /></ChronicsProvider>} />
 </Routes>
+<Router>
           </Container>
+          </ChronicsProvider>
         </MedicationProvider>
       </ApolloProvider>
     </RoleProvider>
